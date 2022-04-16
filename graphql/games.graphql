@@ -1,0 +1,28 @@
+query Games {
+  games {
+    _id
+    name
+    description
+    image    
+  }
+}
+
+fragment BaseGame on Game {
+  image
+  description
+}
+
+mutation CreateGame($data: BaseGameInput!) {
+  createGame(data: $data) {
+    _id
+    image
+    description
+    image
+  }
+}
+
+mutation DeleteGame($id: String!) {
+  deleteGame(_id: $id) {
+    _id
+  }
+}
