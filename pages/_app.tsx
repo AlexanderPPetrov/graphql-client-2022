@@ -1,9 +1,8 @@
 import React from "react"
 import type { AppContext, AppProps} from 'next/app'
-import {QueryClient, QueryClientProvider, Hydrate, useQuery} from "react-query";
+import {QueryClient, QueryClientProvider, Hydrate, useQuery, dehydrate} from "react-query";
 import {ReactQueryDevtools} from "react-query/devtools";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import AppContextProvider from "../context/AppContextProvider";
 import { parseCookies } from "../helpers/cookie";
 import App from 'next/app'
 import {
@@ -17,29 +16,21 @@ function MyApp({Component, pageProps}: AppProps) {
   const [queryClient] = React.useState(() => new QueryClient());
   return <QueryClientProvider client={queryClient}>
     <Hydrate state={pageProps.dehydratedState}>
-      <AppContextProvider>
-        <Component {...pageProps} />
-      </AppContextProvider>
+      <Component {...pageProps} />
     </Hydrate>
     <ReactQueryDevtools/>
   </QueryClientProvider>
 }
 
 MyApp.getInitialProps = async (appContext: AppContext) => {
-  // calls page's `getInitialProps` and fills `appProps.pageProps`
-  const appProps = await App.getInitialProps(appContext);
+  const queryClient = new QueryClient()
   const cookies = parseCookies(appContext.ctx.req)
   const parsedToken = cookies?.token ?? '';
-  const _queryClient = new QueryClient()
-  try {
-    await _queryClient.prefetchQuery(
-        'getCurrentUser',
-        fetchData<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, {}, parsedToken),
-    )
-  } catch (e) {
-    console.log(e);
-  }
-  return { ...appProps }
+  await queryClient.prefetchQuery(
+      'CurrentUser',
+      fetchData<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, {}, parsedToken),
+  )
+  return { pageProps: { dehydratedState: dehydrate(queryClient) } };
 }
 
 export default MyApp

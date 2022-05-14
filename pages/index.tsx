@@ -2,22 +2,25 @@ import type { NextPage } from 'next'
 import Layout from '../components/games/layouts/Default'
 import GamesContainer from '../components/games/GamesContainer'
 import LoginForm from "../components/LoginForm";
-import {useAppContext} from "../context/AppContext";
 import {Button} from "react-bootstrap";
 import {useCookies} from "react-cookie";
+import {useCurrentUserQuery} from "../generated/graphql";
 
 const Home: NextPage = () => {
-    const {user, setUser} = useAppContext();
     const [cookies, setCookie, removeCookie] = useCookies(['token']);
-
+    const {data, isLoading, error, refetch} = useCurrentUserQuery({}, {
+        refetchOnWindowFocus: false,
+        retry: 1,
+    });
+    console.log('--->', {data, isLoading, error})
     return (
     <div >
       <Layout>
-          {user._id && <Button onClick={() => {
+          {data?.currentUser?._id && <Button onClick={() => {
               removeCookie('token')
-              setUser({})
+              refetch()
           }}>Logout</Button>}
-          {!user._id && <LoginForm/>}
+          {!data?.currentUser?._id && <LoginForm/>}
         <GamesContainer/>
       </Layout>
     </div>
