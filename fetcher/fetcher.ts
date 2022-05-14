@@ -1,10 +1,24 @@
-export const fetchData = <TData, TVariables>(query: string, variables?: TVariables): (() => Promise<TData>) => {
-    return async () => {
-      const res = await fetch('https://graph-ts-2022.herokuapp.com/graphql', {
+import { Cookies } from "react-cookie";
+
+export const fetchData = <TData, TVariables>(query: string, variables?: TVariables, parsedToken?: string): (() => Promise<TData>) => {
+
+  interface LooseObject {
+    [key: string]: any
+  }
+    const cookies = new Cookies();
+    const token: string = cookies.get('token') ? cookies.get('token') : parsedToken ?? '';
+    // console.log('--->', parsedToken);
+    // console.log('++++', cookies.get('token'));
+  return async () => {
+      const headers:LooseObject = {
+        'Content-Type': 'application/json',
+      }
+      if(token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      const res = await fetch('http://localhost:4000/graphql', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           query,
           variables,

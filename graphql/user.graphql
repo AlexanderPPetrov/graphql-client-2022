@@ -1,0 +1,14 @@
+mutation Login($email: String!, $password: String!) {
+    login(email: $email, password: $password)
+}
+
+query CurrentUser {
+    currentUser {
+        _id
+        firstName
+        lastName
+        email
+        lastLogin
+        roles
+    }
+}

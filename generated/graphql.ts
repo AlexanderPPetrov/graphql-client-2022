@@ -137,6 +137,8 @@ export type GamesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GamesQuery = { __typename?: 'Query', games: Array<{ __typename?: 'Game', _id: any, name: string, description: string, image: string }> };
 
+export type BaseGameFragment = { __typename?: 'Game', image: string, description: string };
+
 export type CreateGameMutationVariables = Exact<{
   data: BaseGameInput;
 }>;
@@ -151,7 +153,25 @@ export type DeleteGameMutationVariables = Exact<{
 
 export type DeleteGameMutation = { __typename?: 'Mutation', deleteGame: { __typename?: 'Game', _id: any } };
 
+export type LoginMutationVariables = Exact<{
+  email: Scalars['String'];
+  password: Scalars['String'];
+}>;
 
+
+export type LoginMutation = { __typename?: 'Mutation', login: string };
+
+export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', _id: any, firstName: string, lastName: string, email: string, lastLogin: number, roles: Array<string> } };
+
+export const BaseGameFragmentDoc = `
+    fragment BaseGame on Game {
+  image
+  description
+}
+    `;
 export const GamesDocument = `
     query Games {
   games {
@@ -207,5 +227,43 @@ export const useDeleteGameMutation = <
     useMutation<DeleteGameMutation, TError, DeleteGameMutationVariables, TContext>(
       ['DeleteGame'],
       (variables?: DeleteGameMutationVariables) => fetchData<DeleteGameMutation, DeleteGameMutationVariables>(DeleteGameDocument, variables)(),
+      options
+    );
+export const LoginDocument = `
+    mutation Login($email: String!, $password: String!) {
+  login(email: $email, password: $password)
+}
+    `;
+export const useLoginMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<LoginMutation, TError, LoginMutationVariables, TContext>) =>
+    useMutation<LoginMutation, TError, LoginMutationVariables, TContext>(
+      ['Login'],
+      (variables?: LoginMutationVariables) => fetchData<LoginMutation, LoginMutationVariables>(LoginDocument, variables)(),
+      options
+    );
+export const CurrentUserDocument = `
+    query CurrentUser {
+  currentUser {
+    _id
+    firstName
+    lastName
+    email
+    lastLogin
+    roles
+  }
+}
+    `;
+export const useCurrentUserQuery = <
+      TData = CurrentUserQuery,
+      TError = unknown
+    >(
+      variables?: CurrentUserQueryVariables,
+      options?: UseQueryOptions<CurrentUserQuery, TError, TData>
+    ) =>
+    useQuery<CurrentUserQuery, TError, TData>(
+      variables === undefined ? ['CurrentUser'] : ['CurrentUser', variables],
+      fetchData<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, variables),
       options
     );
