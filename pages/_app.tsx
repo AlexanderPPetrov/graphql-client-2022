@@ -26,10 +26,13 @@ function MyApp({Component, pageProps}: AppProps) {
 MyApp.getInitialProps = async (appContext: AppContext) => {
     const cookies = parseCookies(appContext.ctx.req)
     const parsedToken = cookies?.token ?? '';
-    await queryClient.prefetchQuery(
-        'CurrentUser',
-        fetchData<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, {}, parsedToken),
-    )
+    if(parsedToken){
+        await queryClient.prefetchQuery(
+            'CurrentUser',
+            fetchData<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, {}, parsedToken),
+        )
+    }
+
     return {pageProps: {dehydratedState: dehydrate(queryClient)}};
 }
 
